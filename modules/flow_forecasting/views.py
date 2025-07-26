@@ -1,48 +1,51 @@
 import streamlit as st
-import datetime
+import pandas as pd
+import numpy as np
 from core.context import context
 
-def flow_forecasting_ui():
-    st.header("ED Flow Forecasting (Demo Mode)")
-    st.caption("Forecasts patient inflow, bed utilization, and bottlenecks. Uses demo/synthetic data.")
-
-    today = datetime.date.today()
-    st.write("Select date range to forecast patient flow:")
-    start_date = st.date_input("Start Date", today)
-    end_date = st.date_input("End Date", today + datetime.timedelta(days=1))
-
-    day_range = (end_date - start_date).days + 1
-    if day_range < 1:
-        st.warning("End date must be after start date.")
-        return
-
-    beds_available = st.number_input("Total ED Beds", min_value=5, max_value=100, value=30)
-    staff_on_duty = st.number_input("Staff On Duty (RNs/MDs)", min_value=1, max_value=50, value=8)
-    scheduled_admissions = st.number_input("Scheduled Admissions", min_value=0, max_value=40, value=5)
-    walkin_rate = st.slider("Walk-in Rate (patients/hr)", 0, 20, 6)
-    ambulance_rate = st.slider("Ambulance Arrivals (per day)", 0, 30, 8)
-    covid_alert = st.checkbox("Pandemic/Epidemic Surge Scenario?", value=False)
-
+def simulate_flow_forecast(days, beds, walkins, ambulance, surge, covid):
     forecast = []
-    for i in range(day_range):
-        # Synthetic daily volumes: Walk-in + ambulance + scheduled, plus surge effect
-        base = walkin_rate * 24 + ambulance_rate + scheduled_admissions
-        surge = base * 1.5 if covid_alert else base
-        patients = int(surge if covid_alert else base)
-        occupancy = min(100, int(patients / beds_available * 100))
+    np.random.seed(42)
+    for i in range(days):
+        date = pd.Timestamp.now() + pd.Timedelta(days=i)
+        baseline = walkins * 24 + ambulance + np.random.randint(-8, 8)
+        if covid:
+            baseline = int(baseline * surge)
+        census = np.clip(np.random.normal(baseline, 10), beds * 0.5, beds * 1.5)
+        wait_time = np.clip(np.random.normal(45 + census/beds*15, 10), 20, 240)
         forecast.append({
-            "Date": (start_date + datetime.timedelta(days=i)).isoformat(),
-            "Forecast_Patients": patients,
-            "ED_Occupancy_%": occupancy,
-            "Staff_On_Duty": staff_on_duty,
+            "Date": date.date(),
+            "Predicted_ED_Census": int(census),
+            "Bed_Availability": beds - int(census) if beds > census else 0,
+            "Mean_Wait_Time_Min": int(wait_time),
+            "ED_Occupancy_%": int(census/beds*100)
         })
+    return pd.DataFrame(forecast)
 
-    if st.button("Run Forecast"):
-        st.subheader("Forecast Results")
+def flow_forecasting_ui():
+    st.header("ED Flow Forecasting (Enterprise Demo)")
+    st.caption("Forecasts patient volumes, waits, and capacity stress. All logic is auditable and exportable.")
+
+    beds = st.number_input("ED Bed Count", 5, 100, 25)
+    walkin_rate = st.slider("Walk-in Rate (patients/hr)", 1, 18, 7)
+    ambulance = st.slider("Ambulance Arrivals (per day)", 0, 40, 8)
+    covid_surge = st.checkbox("Pandemic Surge Mode", value=False)
+    surge_factor = st.slider("Surge Multiplier", 1.0, 2.5, 1.3) if covid_surge else 1.0
+    forecast_days = st.slider("Forecast Horizon (days)", 1, 14, 7)
+
+    if st.button("Run Flow Forecast"):
+        forecast = simulate_flow_forecast(forecast_days, beds, walkin_rate, ambulance, surge_factor, covid_surge)
+        st.subheader("Predicted ED Flow")
+        st.line_chart(forecast.set_index("Date")[["Predicted_ED_Census", "Bed_Availability"]])
         st.dataframe(forecast)
-        st.metric("Peak ED Occupancy (%)", max(row["ED_Occupancy_%"] for row in forecast))
-        if max(row["ED_Occupancy_%"] for row in forecast) > 85:
-            st.warning("High risk of ED overcrowding on forecasted days!")
-        st.caption("Demo logic—replace with hospital EHR data or actual forecasting models as needed.")
+        st.metric("Max Predicted Occupancy (%)", int(forecast["ED_Occupancy_%"].max()))
+        if (forecast["ED_Occupancy_%"] > 100).any():
+            st.warning("Overcapacity risk detected in forecast window.")
 
+        # Trend/Export
+        st.download_button(
+            "Download Forecast Data (CSV)",
+            forecast.to_csv(index=False).encode("utf-8"),
+            "ed_flow_forecast.csv"
+        )
         context.set("flow_forecast", forecast)
