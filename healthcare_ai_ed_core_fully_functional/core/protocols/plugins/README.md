@@ -1,1 +1,0 @@
-For custom/third-party protocol adapters.

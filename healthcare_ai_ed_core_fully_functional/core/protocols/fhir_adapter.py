@@ -1,1 +1,0 @@
-class FHIRAdapter: pass

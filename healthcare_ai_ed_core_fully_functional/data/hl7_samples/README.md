@@ -1,1 +1,0 @@
-Add HL7 sample files here.

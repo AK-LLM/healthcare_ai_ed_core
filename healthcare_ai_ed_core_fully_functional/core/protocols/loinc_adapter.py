@@ -1,1 +1,0 @@
-class LOINCAdapter: pass
