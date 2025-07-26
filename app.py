@@ -1,7 +1,23 @@
 import streamlit as st
-from core.config import config
-from core.auth import get_current_user
 
+# Defensive imports for modular code
+try:
+    from core.config import config
+except Exception as e:
+    st.error(f"Config import error: {e}")
+    config = None
+
+try:
+    from core.auth import get_current_user
+except Exception as e:
+    st.error(f"Auth import error: {e}")
+    def get_current_user():
+        class Dummy:
+            username = "unknown"
+            role = "tester"
+        return Dummy()
+
+# App layout and navigation
 st.set_page_config(page_title="Universal AI ED Platform", layout="wide")
 user = get_current_user()
 
@@ -15,14 +31,36 @@ module = st.sidebar.selectbox(
 
 st.title("Universal Modular AI for Emergency Departments")
 
+# Try importing each module's UI only if needed, so a broken module won't crash the whole app
 if module == "Triage AI":
-    from modules.triage_ai.views import triage_ui
-    triage_ui()
+    try:
+        from modules.triage_ai.views import triage_ui
+        triage_ui()
+    except Exception as e:
+        st.error(f"Triage module failed to load: {e}")
+
 elif module == "Flow Forecasting":
-    st.info("Flow Forecasting module coming soon.")
+    try:
+        from modules.flow_forecasting.views import flow_forecasting_ui
+        flow_forecasting_ui()
+    except Exception as e:
+        st.error(f"Flow Forecasting module failed to load: {e}")
+
 elif module == "Diagnostic Ordering":
-    st.info("Diagnostic Ordering module coming soon.")
+    try:
+        from modules.diagnostic_ordering.views import diagnostic_ordering_ui
+        diagnostic_ordering_ui()
+    except Exception as e:
+        st.info("Diagnostic Ordering module coming soon.")
+        st.error(f"Diagnostic Ordering module failed to load: {e}")
+
 elif module == "Disposition Prediction":
-    st.info("Disposition Prediction module coming soon.")
+    try:
+        from modules.disposition_prediction.views import disposition_prediction_ui
+        disposition_prediction_ui()
+    except Exception as e:
+        st.info("Disposition Prediction module coming soon.")
+        st.error(f"Disposition Prediction module failed to load: {e}")
+
 else:
     st.warning("Select a module to begin.")
