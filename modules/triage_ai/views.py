@@ -1,80 +1,78 @@
 import streamlit as st
-from modules.triage_ai.model import triage_predict
+import datetime
+import pandas as pd
+from modules.triage_ai.model import triage_predict, triage_trace
 from core.context import context
 
 def triage_ui():
-    st.header("Triage AI (Demo Mode)")
-    st.caption("Simulated triage assessment using clinical best practices. No real patient data.")
+    st.header("AI Triage (Advanced)")
+    st.caption("Modern triage scoring using multiple factors, clinical rules, and explainable logic. No PHI.")
 
     with st.form("triage_form"):
-        st.subheader("Patient Information")
+        st.subheader("Patient Info")
         col1, col2 = st.columns(2)
         with col1:
-            age = st.number_input("Patient Age", min_value=0, max_value=120, value=40)
+            age = st.number_input("Age", min_value=0, max_value=120, value=42)
             gender = st.selectbox("Gender", ["Male", "Female", "Other"])
             arrival_mode = st.selectbox("Arrival Mode", ["Walk-in", "Ambulance", "Referral"])
+            recent_ed_visits = st.number_input("ED visits (last 30 days)", 0, 10, 0)
         with col2:
-            chief_complaint = st.text_input("Chief Complaint", value="Chest pain")
-            allergies = st.text_input("Known Allergies", value="None")
+            chief_complaint = st.text_input("Chief Complaint", "Shortness of breath")
+            allergies = st.text_input("Allergies", "None")
             comorbidities = st.multiselect(
                 "Comorbidities", 
                 ["Diabetes", "Hypertension", "COPD/Asthma", "Cancer", "None"], 
                 default=["None"]
             )
 
-        st.divider()
         st.subheader("Vital Signs")
-        col3, col4, col5, col6 = st.columns(4)
-        with col3:
-            hr = st.number_input("Heart Rate (bpm)", min_value=30, max_value=200, value=88)
-        with col4:
-            temp = st.number_input("Temperature (°C)", min_value=30.0, max_value=43.0, value=37.2)
-        with col5:
-            systolic = st.number_input("Systolic BP", min_value=60, max_value=220, value=120)
-            diastolic = st.number_input("Diastolic BP", min_value=30, max_value=140, value=80)
-        with col6:
-            resp_rate = st.number_input("Respiratory Rate", min_value=5, max_value=40, value=16)
-            spo2 = st.number_input("O₂ Saturation (%)", min_value=50, max_value=100, value=98)
-
-        st.divider()
-        st.subheader("Assessment Details")
+        hr = st.number_input("Heart Rate", min_value=30, max_value=200, value=98)
+        temp = st.number_input("Temperature (°C)", min_value=30.0, max_value=43.0, value=37.5)
+        bp_sys = st.number_input("BP Systolic", 60, 240, 126)
+        bp_dia = st.number_input("BP Diastolic", 30, 140, 78)
+        resp_rate = st.number_input("Respiratory Rate", 8, 50, 18)
+        spo2 = st.number_input("O₂ Sat (%)", 50, 100, 98)
         pain_score = st.slider("Pain Score", 0, 10, 4)
-        notes = st.text_area("Nurse/Clinician Notes", "Patient reports chest pain for 1 hour...")
 
-        submitted = st.form_submit_button("Predict Triage Level")
+        red_flags = st.multiselect("Red Flags", [
+            "Altered mental status", "Sepsis", "Severe pain", "Resp distress", "None"
+        ], default=["None"])
+
+        submitted = st.form_submit_button("Predict Triage")
 
     if submitted:
-        # Expand triage_predict to accept more fields for future-proofing
+        # Predict and explain
         result = triage_predict(
-            age=age, 
-            complaint=chief_complaint,
-            hr=hr, 
-            temp=temp,
-            systolic=systolic,
-            diastolic=diastolic,
-            resp_rate=resp_rate,
-            spo2=spo2,
-            pain_score=pain_score,
-            comorbidities=comorbidities,
-            arrival_mode=arrival_mode,
-            gender=gender
+            age=age, gender=gender, arrival_mode=arrival_mode, 
+            chief_complaint=chief_complaint, hr=hr, temp=temp, bp_sys=bp_sys, bp_dia=bp_dia,
+            resp_rate=resp_rate, spo2=spo2, pain_score=pain_score, comorbidities=comorbidities, red_flags=red_flags,
+            recent_ed_visits=recent_ed_visits
         )
-        st.success(f"**Predicted Triage Level:** {result['level']}")
-        st.write(f"**Clinical Reasoning:** {result['reason']}")
-        st.metric("Predicted Risk Score", f"{result['risk']*100:.0f}%")
-        st.info("Recommended action: " + result.get("recommendation", "See provider soon."))
+        trace = triage_trace(result)
 
-        st.divider()
-        st.subheader("Session Triage History")
+        st.success(f"**Predicted Triage Level:** {result['level']} (Risk: {result['risk']}%)")
+        st.progress(result['risk'] / 100, text=f"Predicted acuity: {result['level']}")
+
+        st.write("**AI Reasoning / Explanation:**")
+        for t in trace:
+            st.markdown(f"- {t}")
+
+        st.info(result.get("recommendation", "Assess immediately."))
+
+        # Session log
         history = context.get("triage_history", [])
         history.append({
-            "level": result["level"],
-            "chief_complaint": chief_complaint,
-            "risk": result["risk"],
-            "time": st.session_state.get("time", "now"),
+            "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "level": result["level"], "chief_complaint": chief_complaint, "risk": result["risk"]
         })
-        context.set("triage_history", history[-5:])
-        st.table(history[-5:])
+        context.set("triage_history", history[-10:])
+        st.subheader("Triage History (This Session)")
+        st.dataframe(pd.DataFrame(history[-10:]))
 
-        st.caption("This is a synthetic demonstration. No actual patient risk is being assessed.")
+        st.download_button(
+            "Download Session Triage Log (CSV)",
+            pd.DataFrame(history).to_csv(index=False).encode("utf-8"),
+            "triage_log.csv"
+        )
 
+        st.caption("Enterprise-grade demo: reasoning, trends, and export included.")
