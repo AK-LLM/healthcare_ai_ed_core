@@ -1,0 +1,1 @@
+class MLLPAdapter: pass

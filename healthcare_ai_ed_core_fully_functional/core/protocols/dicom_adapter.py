@@ -1,0 +1,1 @@
+class DICOMAdapter: pass
