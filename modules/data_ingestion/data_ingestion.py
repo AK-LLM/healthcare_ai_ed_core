@@ -5,16 +5,20 @@ import os
 from io import StringIO
 
 REPUTABLE_SOURCES = [
-    # 1. US CDC COVID-19 Case Surveillance Public Use Data (small sample, verified!)
-    "https://people.sc.fsu.edu/~jburkardt/data/csv/airtravel.csv",
-    # 2. WHO COVID-19 Global Data (can fail on some hosts, but works on local/dev most times)
-    "https://covid19.who.int/WHO-COVID-19-global-data.csv"
-    # Add more only after browser+python check
+    # 1. Government of Canada - COVID-19 Hospitalizations and ICU admissions
+    "https://health-infobase.canada.ca/src/data/covidLive/covid19-hospICUeng.csv",
+    # 2. CIHI - Hospital Morbidity Database (Sample hospital discharge data)
+    "https://www.cihi.ca/sites/default/files/document/sample-hmdb-en.csv",
+    # 3. CCDSS - Diabetes prevalence by sex, age, province (Canada)
+    "https://health-infobase.canada.ca/src/data/ccdss/csv/ccdss-diabetes-prevalence-sex-age-province.csv",
+    # 4. Ontario COVID-19 hospital and ICU occupancy (Province of Ontario)
+    "https://data.ontario.ca/dataset/997fd7b6-7fd9-4e61-b032-63ad823b9344/resource/669fd5e8-66c8-46f9-b0d1-2a70ae7a2283/download/covid19-hospital-icu.csv"
 ]
 
 TRUSTED_DOMAINS = [
-    "who.int",
-    "sc.fsu.edu"
+    "canada.ca",
+    "cihi.ca",
+    "ontario.ca"
 ]
 
 DATA_DIR = "data"
@@ -51,7 +55,7 @@ def save_clean_data(df, source_url):
     return full_path
 
 def data_ingestion_ui():
-    st.header("Enterprise Data Ingestion")
+    st.header("Enterprise Data Ingestion (Canada Only)")
     source = st.selectbox("Choose trusted public data source", REPUTABLE_SOURCES)
     custom_url = st.text_input("Or enter another CSV URL (must be trusted domain)")
     url = custom_url.strip() if custom_url else source
