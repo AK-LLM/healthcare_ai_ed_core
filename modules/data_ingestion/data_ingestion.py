@@ -5,18 +5,13 @@ import os
 from io import StringIO
 
 REPUTABLE_SOURCES = [
-    # 1. Government of Canada - COVID-19 Hospitalizations and ICU admissions
-    "https://health-infobase.canada.ca/src/data/covidLive/covid19-hospICUeng.csv",
-    # 2. CIHI - Hospital Morbidity Database (Sample hospital discharge data)
+    # 1. CIHI - Hospital Morbidity Database (Canada, sample, working as of July 27, 2025)
     "https://www.cihi.ca/sites/default/files/document/sample-hmdb-en.csv",
-    # 3. CCDSS - Diabetes prevalence by sex, age, province (Canada)
-    "https://health-infobase.canada.ca/src/data/ccdss/csv/ccdss-diabetes-prevalence-sex-age-province.csv",
-    # 4. Ontario COVID-19 hospital and ICU occupancy (Province of Ontario)
+    # 2. Ontario COVID-19 hospital and ICU occupancy (working as of July 27, 2025)
     "https://data.ontario.ca/dataset/997fd7b6-7fd9-4e61-b032-63ad823b9344/resource/669fd5e8-66c8-46f9-b0d1-2a70ae7a2283/download/covid19-hospital-icu.csv"
 ]
 
 TRUSTED_DOMAINS = [
-    "canada.ca",
     "cihi.ca",
     "ontario.ca"
 ]
