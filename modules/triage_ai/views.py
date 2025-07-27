@@ -41,7 +41,6 @@ def triage_ui():
         submitted = st.form_submit_button("Predict Triage")
 
     if submitted:
-        # Predict and explain
         result = triage_predict(
             age=age, gender=gender, arrival_mode=arrival_mode, 
             chief_complaint=chief_complaint, hr=hr, temp=temp, bp_sys=bp_sys, bp_dia=bp_dia,
@@ -59,7 +58,6 @@ def triage_ui():
 
         st.info(result.get("recommendation", "Assess immediately."))
 
-        # Session log
         history = context.get("triage_history", [])
         history.append({
             "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
