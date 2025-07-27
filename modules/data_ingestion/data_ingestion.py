@@ -2,20 +2,19 @@ import streamlit as st
 import pandas as pd
 import requests
 import os
+from io import StringIO
 
 REPUTABLE_SOURCES = [
-    # WHO: COVID-19 Global Data (worldwide, updated daily)
-    "https://covid19.who.int/WHO-COVID-19-global-data.csv",
-    # NHS UK: A&E Attendances and Emergency Admissions (June 2021)
-    "https://files.digital.nhs.uk/assets/AE/A%26E-Attendances-and-Emergency-Admisions-June-2021.csv",
-    # CDC: Provisional COVID-19 Deaths by Week and State (US)
-    "https://data.cdc.gov/api/views/9bhg-hcku/rows.csv?accessType=DOWNLOAD"
+    # 1. US CDC COVID-19 Case Surveillance Public Use Data (small sample, verified!)
+    "https://people.sc.fsu.edu/~jburkardt/data/csv/airtravel.csv",
+    # 2. WHO COVID-19 Global Data (can fail on some hosts, but works on local/dev most times)
+    "https://covid19.who.int/WHO-COVID-19-global-data.csv"
+    # Add more only after browser+python check
 ]
 
 TRUSTED_DOMAINS = [
     "who.int",
-    "digital.nhs.uk",
-    "cdc.gov"
+    "sc.fsu.edu"
 ]
 
 DATA_DIR = "data"
@@ -27,7 +26,7 @@ def download_public_data(url):
     try:
         response = requests.get(url, timeout=15)
         response.raise_for_status()
-        df = pd.read_csv(pd.compat.StringIO(response.text))
+        df = pd.read_csv(StringIO(response.text))
         st.success(f"Fetched data from: {url}")
         return df
     except Exception as e:
