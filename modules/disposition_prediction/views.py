@@ -7,7 +7,6 @@ def disposition_prediction_ui():
     st.header("Disposition Prediction (Advanced Demo)")
     st.caption("Predicts likely ED disposition using a weighted ruleset and demo ML logic. All patient data here is synthetic.")
 
-    # -- Patient EMR Card (realistic)
     st.subheader("Patient Summary")
     col1, col2 = st.columns(2)
     with col1:
@@ -38,7 +37,6 @@ def disposition_prediction_ui():
         safety_concerns = st.checkbox("Safety/Abuse/Neglect Flag", value=False)
 
     if st.button("Predict Disposition"):
-        # -- Weighted Rule Demo "AI" (You can swap with real ML later)
         trace = []
         risk = 0
 
@@ -73,11 +71,9 @@ def disposition_prediction_ui():
             risk += 10
             trace.append("Clinician override/estimate (+10)")
 
-        # -- Normalize risk to [0,100]
         risk = min(100, risk)
-        confidence = min(100, 70 + abs(admission_risk - 70)//2)  # Demo confidence logic
+        confidence = min(100, 70 + abs(admission_risk - 70)//2)
 
-        # -- Final Disposition logic
         if risk >= 60:
             disposition = "Admit to Hospital"
         elif risk >= 40:
@@ -85,7 +81,6 @@ def disposition_prediction_ui():
         else:
             disposition = "Safe for Discharge"
 
-        # -- Show output
         st.success(f"**Recommended Disposition:** {disposition}")
         st.metric("Predicted Admission Risk (%)", risk)
         st.progress(confidence / 100, text="Prediction Confidence")
@@ -94,7 +89,6 @@ def disposition_prediction_ui():
         for line in trace:
             st.markdown(f"- {line}")
 
-        # -- History
         triage_history = context.get("disposition_history", [])
         triage_history.append({
             "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
@@ -109,7 +103,6 @@ def disposition_prediction_ui():
         st.subheader("Session Disposition History")
         st.dataframe(pd.DataFrame(triage_history[-10:]))
 
-        # -- Export (demo: download as CSV)
         csv = pd.DataFrame(triage_history).to_csv(index=False).encode('utf-8')
         st.download_button("Download Disposition Log (CSV)", csv, "disposition_log.csv", "text/csv")
 
