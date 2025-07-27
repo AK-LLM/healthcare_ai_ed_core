@@ -1,5 +1,4 @@
 def triage_predict(**kwargs):
-    # Advanced scoring logic (can replace with ML model)
     risk = 0
     trace = []
     if kwargs.get("arrival_mode") == "Ambulance":
@@ -17,7 +16,6 @@ def triage_predict(**kwargs):
     if "COPD/Asthma" in kwargs.get("comorbidities", []):
         risk += 8
         trace.append("Respiratory comorbidity (+8)")
-    # ... etc (expand for more realism)
     risk = min(risk, 99)
     level = "High Acuity" if risk > 50 else "Urgent" if risk > 25 else "Routine"
     return {
@@ -27,7 +25,6 @@ def triage_predict(**kwargs):
     }
 
 def triage_trace(result):
-    # Show exactly how score was built (for explainability)
     if "trace" in result:
         return result["trace"]
     return ["No details available."]
