@@ -16,7 +16,7 @@ module = st.sidebar.selectbox(
         "Diagnostic Ordering",
         "Disposition Prediction",
         "Analytics Dashboard",
-        "Data Ingestion"
+        "Cardiac Risk Assessment"
     ]
 )
 
@@ -36,8 +36,8 @@ elif module == "Disposition Prediction":
     disposition_prediction_ui()
 elif module == "Analytics Dashboard":
     analytics_dashboard()
-elif module == "Data Ingestion":
-    from modules.data_ingestion.data_ingestion import data_ingestion_ui
-    data_ingestion_ui()
+elif module == "Cardiac Risk Assessment":
+    from modules.cardiac_risk.views import cardiac_risk_ui
+    cardiac_risk_ui()
 else:
     st.warning("Select a module to begin.")
