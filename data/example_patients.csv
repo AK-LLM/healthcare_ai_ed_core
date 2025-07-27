@@ -1,1 +1,7 @@
 
+patient_id,age,gender,chief_complaint,triage_level,arrival_mode,ed_visit_count
+P001,72,Female,Shortness of breath,High Acuity,Ambulance,1
+P002,24,Male,Fever,Routine,Walk-in,0
+P003,60,Male,Chest pain,Urgent,Walk-in,2
+P004,34,Female,Abdominal pain,Urgent,Walk-in,1
+P005,80,Female,Falls,High Acuity,Ambulance,4
