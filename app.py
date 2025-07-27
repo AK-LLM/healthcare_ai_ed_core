@@ -8,7 +8,6 @@ user = get_current_user()
 st.sidebar.title("AI Emergency Dept Platform")
 st.sidebar.info(f"Logged in as: **{user.username}** ({user.role})")
 
-# Add all modules, including Data Ingestion, in the sidebar
 module = st.sidebar.selectbox(
     "Select Module",
     [
