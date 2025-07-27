@@ -42,7 +42,6 @@ def flow_forecasting_ui():
         if (forecast["ED_Occupancy_%"] > 100).any():
             st.warning("Overcapacity risk detected in forecast window.")
 
-        # Trend/Export
         st.download_button(
             "Download Forecast Data (CSV)",
             forecast.to_csv(index=False).encode("utf-8"),
