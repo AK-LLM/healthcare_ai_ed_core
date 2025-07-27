@@ -1,16 +1,8 @@
 class User:
-    def __init__(self, username="demo_user", role="tester"):
+    def __init__(self, username, role):
         self.username = username
         self.role = role
 
-    def is_admin(self):
-        return self.role == "admin"
-
-    def is_tester(self):
-        return self.role == "tester"
-
 def get_current_user():
-    # In POC/demo: always a tester
-    return User()
-
-# Future: integrate with real Auth provider/Supabase
+    # For demo: returns a hardcoded admin user
+    return User("admin", "Administrator")
