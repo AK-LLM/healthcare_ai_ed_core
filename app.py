@@ -8,9 +8,17 @@ user = get_current_user()
 st.sidebar.title("AI Emergency Dept Platform")
 st.sidebar.info(f"Logged in as: **{user.username}** ({user.role})")
 
+# Add all modules, including Data Ingestion, in the sidebar
 module = st.sidebar.selectbox(
     "Select Module",
-    ["Triage AI", "Flow Forecasting", "Diagnostic Ordering", "Disposition Prediction", "Analytics Dashboard"]
+    [
+        "Triage AI",
+        "Flow Forecasting",
+        "Diagnostic Ordering",
+        "Disposition Prediction",
+        "Analytics Dashboard",
+        "Data Ingestion"
+    ]
 )
 
 st.title("Enterprise Modular AI for Emergency Departments")
@@ -29,5 +37,8 @@ elif module == "Disposition Prediction":
     disposition_prediction_ui()
 elif module == "Analytics Dashboard":
     analytics_dashboard()
+elif module == "Data Ingestion":
+    from modules.data_ingestion.data_ingestion import data_ingestion_ui
+    data_ingestion_ui()
 else:
     st.warning("Select a module to begin.")
