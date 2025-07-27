@@ -1,0 +1,11 @@
+{
+    "app_title": "企业级AI急诊平台",
+    "sidebar_title": "AI急诊科平台",
+    "sidebar_logged_in": "已登录用户: {user}",
+    "triage_module": "分诊AI",
+    "flow_module": "流量预测",
+    "diagnostic_module": "诊断订单",
+    "disposition_module": "去向预测",
+    "analytics_module": "分析仪表盘",
+    "select_module": "选择模块"
+}
