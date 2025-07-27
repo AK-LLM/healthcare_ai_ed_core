@@ -1,1 +1,12 @@
+{
+    "app_title": "Enterprise AI ED Platform",
+    "sidebar_title": "AI Emergency Dept Platform",
+    "sidebar_logged_in": "Logged in as: {user}",
+    "triage_module": "Triage AI",
+    "flow_module": "Flow Forecasting",
+    "diagnostic_module": "Diagnostic Ordering",
+    "disposition_module": "Disposition Prediction",
+    "analytics_module": "Analytics Dashboard",
+    "select_module": "Select Module"
+}
 
