@@ -1,7 +1,6 @@
 import streamlit as st
 from core.context import context
 
-# Simulated clinical rules (could be loaded from FHIR/LOINC APIs)
 ORDER_RULES = {
     "Chest pain": {
         "labs": ["Troponin", "CBC", "D-dimer", "Electrolytes"],
@@ -46,7 +45,6 @@ def diagnostic_ordering_ui():
         else:
             orders = {"labs": ["CBC", "Basic Metabolic Panel"], "imaging": [], "urgent": False, "cost_estimate": 120}
 
-        # Advanced demo: Adjust by risk flags and comorbidities
         if "Sepsis" in red_flags:
             orders["labs"].append("Lactate")
             orders["urgent"] = True
@@ -61,7 +59,6 @@ def diagnostic_ordering_ui():
         st.metric("Estimated Total Cost (USD)", f"${orders['cost_estimate']}")
         st.metric("Urgency", "STAT" if orders["urgent"] else "Routine")
 
-        # Explainable output
         st.write("**Reasoning Trace:**")
         st.markdown(
             "- Orders chosen based on complaint and risk\n"
