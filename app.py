@@ -1,24 +1,8 @@
 import streamlit as st
+from core.auth import get_current_user
+from analytics.analytics_dashboard import analytics_dashboard
 
-# Defensive imports for modular code
-try:
-    from core.config import config
-except Exception as e:
-    st.error(f"Config import error: {e}")
-    config = None
-
-try:
-    from core.auth import get_current_user
-except Exception as e:
-    st.error(f"Auth import error: {e}")
-    def get_current_user():
-        class Dummy:
-            username = "unknown"
-            role = "tester"
-        return Dummy()
-
-# App layout and navigation
-st.set_page_config(page_title="Universal AI ED Platform", layout="wide")
+st.set_page_config(page_title="Enterprise AI ED Platform", layout="wide")
 user = get_current_user()
 
 st.sidebar.title("AI Emergency Dept Platform")
@@ -26,41 +10,24 @@ st.sidebar.info(f"Logged in as: **{user.username}** ({user.role})")
 
 module = st.sidebar.selectbox(
     "Select Module",
-    ["Triage AI", "Flow Forecasting", "Diagnostic Ordering", "Disposition Prediction"]
+    ["Triage AI", "Flow Forecasting", "Diagnostic Ordering", "Disposition Prediction", "Analytics Dashboard"]
 )
 
-st.title("Universal Modular AI for Emergency Departments")
+st.title("Enterprise Modular AI for Emergency Departments")
 
-# Try importing each module's UI only if needed, so a broken module won't crash the whole app
 if module == "Triage AI":
-    try:
-        from modules.triage_ai.views import triage_ui
-        triage_ui()
-    except Exception as e:
-        st.error(f"Triage module failed to load: {e}")
-
+    from modules.triage_ai.views import triage_ui
+    triage_ui()
 elif module == "Flow Forecasting":
-    try:
-        from modules.flow_forecasting.views import flow_forecasting_ui
-        flow_forecasting_ui()
-    except Exception as e:
-        st.error(f"Flow Forecasting module failed to load: {e}")
-
+    from modules.flow_forecasting.views import flow_forecasting_ui
+    flow_forecasting_ui()
 elif module == "Diagnostic Ordering":
-    try:
-        from modules.diagnostic_ordering.views import diagnostic_ordering_ui
-        diagnostic_ordering_ui()
-    except Exception as e:
-        st.info("Diagnostic Ordering module coming soon.")
-        st.error(f"Diagnostic Ordering module failed to load: {e}")
-
+    from modules.diagnostic_ordering.views import diagnostic_ordering_ui
+    diagnostic_ordering_ui()
 elif module == "Disposition Prediction":
-    try:
-        from modules.disposition_prediction.views import disposition_prediction_ui
-        disposition_prediction_ui()
-    except Exception as e:
-        st.info("Disposition Prediction module coming soon.")
-        st.error(f"Disposition Prediction module failed to load: {e}")
-
+    from modules.disposition_prediction.views import disposition_prediction_ui
+    disposition_prediction_ui()
+elif module == "Analytics Dashboard":
+    analytics_dashboard()
 else:
     st.warning("Select a module to begin.")
