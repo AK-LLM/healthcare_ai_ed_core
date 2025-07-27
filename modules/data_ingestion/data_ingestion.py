@@ -4,27 +4,18 @@ import requests
 import os
 
 REPUTABLE_SOURCES = [
-    # Small demo (replace with real ED/health data as needed)
-    "https://raw.githubusercontent.com/datablist/sample-csv-files/main/files/people/people-100.csv",
-    # CDC: US National Notifiable Diseases Surveillance System (NNDSS) (demo sample)
-    "https://data.cdc.gov/api/views/x8jf-txib/rows.csv?accessType=DOWNLOAD",
-    # OpenICPSR: Synthetic EHR Dataset (hospital records)
-    "https://www.openicpsr.org/openicpsr/project/147964/file/download?fileId=601917&type=project",
-    # UCI: Heart Disease Data (health ML demo)
-    "https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data",
-    # WHO: COVID-19 Global Data (cleaned)
+    # WHO: COVID-19 Global Data (worldwide, updated daily)
     "https://covid19.who.int/WHO-COVID-19-global-data.csv",
-    # UK NHS: AE Attendances and Emergency Admissions (healthcare)
-    "https://files.digital.nhs.uk/assets/AE/A%26E-Attendances-and-Emergency-Admisions-June-2021.csv"
+    # NHS UK: A&E Attendances and Emergency Admissions (June 2021)
+    "https://files.digital.nhs.uk/assets/AE/A%26E-Attendances-and-Emergency-Admisions-June-2021.csv",
+    # CDC: Provisional COVID-19 Deaths by Week and State (US)
+    "https://data.cdc.gov/api/views/9bhg-hcku/rows.csv?accessType=DOWNLOAD"
 ]
 
 TRUSTED_DOMAINS = [
-    "githubusercontent.com",
-    "cdc.gov",
-    "openicpsr.org",
-    "ics.uci.edu",
     "who.int",
-    "digital.nhs.uk"
+    "digital.nhs.uk",
+    "cdc.gov"
 ]
 
 DATA_DIR = "data"
@@ -36,12 +27,7 @@ def download_public_data(url):
     try:
         response = requests.get(url, timeout=15)
         response.raise_for_status()
-        # Smart parsing: .csv, .data, or openICPSR custom CSV
-        if url.endswith(".csv") or "csv" in url:
-            df = pd.read_csv(pd.compat.StringIO(response.text))
-        else:
-            # fallback: try whitespace or custom parsing
-            df = pd.read_csv(pd.compat.StringIO(response.text), delimiter=None, engine="python")
+        df = pd.read_csv(pd.compat.StringIO(response.text))
         st.success(f"Fetched data from: {url}")
         return df
     except Exception as e:
