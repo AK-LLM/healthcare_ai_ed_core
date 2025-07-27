@@ -1,6 +1,7 @@
 import streamlit as st
 import datetime
 import pandas as pd
+import os
 from modules.triage_ai.model import triage_predict, triage_trace
 from core.context import context
 
@@ -27,50 +28,4 @@ def triage_ui():
 
         st.subheader("Vital Signs")
         hr = st.number_input("Heart Rate", min_value=30, max_value=200, value=98)
-        temp = st.number_input("Temperature (°C)", min_value=30.0, max_value=43.0, value=37.5)
-        bp_sys = st.number_input("BP Systolic", 60, 240, 126)
-        bp_dia = st.number_input("BP Diastolic", 30, 140, 78)
-        resp_rate = st.number_input("Respiratory Rate", 8, 50, 18)
-        spo2 = st.number_input("O₂ Sat (%)", 50, 100, 98)
-        pain_score = st.slider("Pain Score", 0, 10, 4)
-
-        red_flags = st.multiselect("Red Flags", [
-            "Altered mental status", "Sepsis", "Severe pain", "Resp distress", "None"
-        ], default=["None"])
-
-        submitted = st.form_submit_button("Predict Triage")
-
-    if submitted:
-        result = triage_predict(
-            age=age, gender=gender, arrival_mode=arrival_mode, 
-            chief_complaint=chief_complaint, hr=hr, temp=temp, bp_sys=bp_sys, bp_dia=bp_dia,
-            resp_rate=resp_rate, spo2=spo2, pain_score=pain_score, comorbidities=comorbidities, red_flags=red_flags,
-            recent_ed_visits=recent_ed_visits
-        )
-        trace = triage_trace(result)
-
-        st.success(f"**Predicted Triage Level:** {result['level']} (Risk: {result['risk']}%)")
-        st.progress(result['risk'] / 100, text=f"Predicted acuity: {result['level']}")
-
-        st.write("**AI Reasoning / Explanation:**")
-        for t in trace:
-            st.markdown(f"- {t}")
-
-        st.info(result.get("recommendation", "Assess immediately."))
-
-        history = context.get("triage_history", [])
-        history.append({
-            "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
-            "level": result["level"], "chief_complaint": chief_complaint, "risk": result["risk"]
-        })
-        context.set("triage_history", history[-10:])
-        st.subheader("Triage History (This Session)")
-        st.dataframe(pd.DataFrame(history[-10:]))
-
-        st.download_button(
-            "Download Session Triage Log (CSV)",
-            pd.DataFrame(history).to_csv(index=False).encode("utf-8"),
-            "triage_log.csv"
-        )
-
-        st.caption("Enterprise-grade demo: reasoning, trends, and export included.")
+        temp = st.number_input("Temperature (°C)", min_value=30.0, max_value=43.0,_
